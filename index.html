@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RAF</title>
+
+<style>
+:root{
+  --bg1:#f9d7e7;
+  --bg2:#f4c3dc;
+  --card:#ffffff;
+  --txt:#1d1b22;
+  --muted:#6e6475;
+  --pink:#ff3b8d;
+  --pink2:#ff66a8;
+  --gray:#e9e9ee;
+  --stroke:#00000010;
+  --shadow: 0 20px 60px #00000018;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  color:var(--txt);
+  background:
+    radial-gradient(900px 600px at 30% 20%, #ffffff80, transparent 55%),
+    radial-gradient(700px 600px at 75% 35%, #ffffff70, transparent 55%),
+    linear-gradient(135deg, var(--bg1), var(--bg2));
+  overflow:hidden;
+}
+
+canvas{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+}
+
+.wrap{
+  width:min(820px, 92vw);
+  padding:22px;
+}
+
+.card{
+  position:relative;
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:22px;
+  padding:26px 26px 22px;
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+
+.softGlow{
+  position:absolute;
+  inset:-2px;
+  background: radial-gradient(520px 220px at 35% 20%, #ff3b8d20, transparent 60%);
+  pointer-events:none;
+}
+
+.topRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+}
+
+h1{
+  margin:0;
+  font-size: clamp(22px, 4vw, 36px);
+  line-height:1.12;
+  letter-spacing:-0.02em;
+}
+
+.sub{
+  margin:10px 0 0;
+  color:var(--muted);
+  font-size: clamp(14px, 2.2vw, 16px);
+  line-height:1.5;
+}
+
+.catImg{
+  width: 240px;
+  height: auto;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 20px 40px #00000020);
+  animation: float 3s ease-in-out infinite;
+  user-select: none;
+  pointer-events: none;
+
+}
+
+@keyframes float{
+  0%,100%{ transform: translateY(0) rotate(-1deg); }
+  50%{ transform: translateY(-6px) rotate(1deg); }
+}
+
+.btns{
+  margin-top:18px;
+  position:relative;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  min-height:64px;
+}
+
+button{
+  border:0;
+  border-radius:14px;
+  padding:12px 16px;
+  font-size:16px;
+  cursor:pointer;
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+  user-select:none;
+  font-weight:650;
+}
+
+button:active{ transform: scale(.98); }
+
+.yes{
+  background: linear-gradient(180deg, var(--pink), var(--pink2));
+  color:#fff;
+  box-shadow: 0 14px 26px #ff3b8d35;
+}
+.yes:hover{
+  transform: translateY(-2px);
+  filter: brightness(1.02);
+}
+
+.no{
+  background: var(--gray);
+  color:#2a2732;
+  position:relative;
+  box-shadow: 0 10px 18px #00000010;
+}
+.no:hover{ transform: translateY(-2px); }
+
+.result{
+  margin-top:16px;
+  padding:12px 14px;
+  border-radius:16px;
+  background: #ff3b8d10;
+  border:1px solid #ff3b8d18;
+  display:none;
+  align-items:center;
+  gap:10px;
+}
+
+.badge{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background:#ff3b8d18;
+  border:1px solid #ff3b8d1f;
+}
+
+.hint{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:13px;
+  opacity:.95;
+}
+
+/* маленький “поп” при YES */
+.pop{
+  animation: pop .35s ease;
+}
+@keyframes pop{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.03); }
+  100%{ transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+<canvas id="fx"></canvas>
+
+<div class="wrap">
+  <div class="card" id="card">
+    <div class="softGlow"></div>
+
+    <div class="topRow">
+      <div>
+        <h1>Проверим теорию про РАФ?</h1>
+        <p class="sub">Просто кофе и прогулка, Жанара ☕✨</p>
+      </div>
+
+      <!-- КОТИК (SVG, без картинок) -->
+<img src="cat.png" class="catImg" alt="cute cat" draggable="false">
+    </div>
+
+    <div class="btns" id="btns">
+      <button class="yes" id="yesBtn">Yes 💗</button>
+      <button class="no" id="noBtn">No</button>
+    </div>
+
+    <div class="result" id="result">
+      <div class="badge" id="badge">💌</div>
+      <div>
+        <div id="resultTitle" style="font-weight:750">Урааа!</div>
+        <div id="resultText" style="color:var(--muted);margin-top:2px">
+          Тогда фиксируем время 😌
+        </div>
+      </div>
+    </div>
+
+    <div class="hint" id="hint">Подсказка: кнопка “No” ведёт себя подозрительно 😄</div>
+  </div>
+</div>
+
+<script>
+/* ================== УБЕГАЮЩАЯ КНОПКА (плавно + работает на телефоне) ================== */
+const yesBtn = document.getElementById("yesBtn");
+const noBtn  = document.getElementById("noBtn");
+const btns   = document.getElementById("btns");
+const card   = document.getElementById("card");
+const result = document.getElementById("result");
+
+let noX = 0, noY = 0;
+let targetX = 0, targetY = 0;
+let rafId = null;
+
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+function setNoTargetRandom(){
+  const area = btns.getBoundingClientRect();
+  const b = noBtn.getBoundingClientRect();
+
+  const maxX = area.width - b.width;
+  const maxY = area.height - b.height + 24;
+
+  targetX = Math.random() * maxX;
+  targetY = Math.random() * maxY;
+
+  noBtn.style.position = "absolute";
+  noBtn.style.left = "0px";
+  noBtn.style.top  = "0px";
+}
+
+function animateNo(){
+  // плавное приближение к цели
+  noX += (targetX - noX) * 0.18;
+  noY += (targetY - noY) * 0.18;
+
+  noBtn.style.transform = `translate(${noX}px, ${noY}px)`;
+
+  const dx = Math.abs(targetX - noX);
+  const dy = Math.abs(targetY - noY);
+  if(dx < 0.6 && dy < 0.6){
+    rafId = null;
+    return;
+  }
+  rafId = requestAnimationFrame(animateNo);
+}
+
+function moveNoButton(){
+  setNoTargetRandom();
+  if(!rafId) rafId = requestAnimationFrame(animateNo);
+}
+
+noBtn.addEventListener("mouseenter", moveNoButton);
+noBtn.addEventListener("mousedown",  moveNoButton);
+noBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); moveNoButton(); }, {passive:false});
+noBtn.addEventListener("click", (e)=>{ e.preventDefault(); moveNoButton(); });
+
+/* ================== СЕРДЕЧКИ НА CANVAS (эффект как в видосах) ================== */
+const canvas = document.getElementById("fx");
+const ctx = canvas.getContext("2d");
+
+function resize(){
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = Math.floor(window.innerWidth * dpr);
+  canvas.height = Math.floor(window.innerHeight * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+let particles = [];
+
+function heartPath(ctx, size){
+  // простенькое сердечко через bezier
+  const s = size;
+  ctx.beginPath();
+  ctx.moveTo(0, -0.2*s);
+  ctx.bezierCurveTo(0.55*s, -0.85*s, 1.1*s, -0.1*s, 0, 0.75*s);
+  ctx.bezierCurveTo(-1.1*s, -0.1*s, -0.55*s, -0.85*s, 0, -0.2*s);
+  ctx.closePath();
+}
+
+function burstHearts(x, y){
+  particles = [];
+  const count = 120;
+
+  for(let i=0;i<count;i++){
+    const speed = 3 + Math.random()*7;
+    const ang = (Math.random()*Math.PI*2);
+    particles.push({
+      x, y,
+      vx: Math.cos(ang)*speed,
+      vy: Math.sin(ang)*speed - (2 + Math.random()*3),
+      g: 0.12 + Math.random()*0.10,
+      a: 1,
+      s: 4 + Math.random()*7,
+      rot: Math.random()*Math.PI,
+      vr: (Math.random()-0.5)*0.25,
+      kind: Math.random()<0.8 ? "heart" : "spark"
+    });
+  }
+
+  requestAnimationFrame(tick);
+}
+
+function tick(){
+  ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+  let alive = 0;
+
+  for(const p of particles){
+    p.vy += p.g;
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.rot += p.vr;
+    p.a  *= 0.985;
+
+    if(p.y < window.innerHeight+40 && p.a > 0.05) alive++;
+
+    ctx.save();
+    ctx.globalAlpha = p.a;
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+
+    if(p.kind === "heart"){
+      ctx.fillStyle = (Math.random()<0.5) ? "#ff3b8d" : "#ff66a8";
+      heartPath(ctx, p.s);
+      ctx.fill();
+    }else{
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(-p.s/2, -p.s/2, p.s, p.s);
+    }
+
+    ctx.restore();
+  }
+
+  if(alive>0) requestAnimationFrame(tick);
+}
+
+/* ================== КЛИК YES: эффект + WhatsApp ================== */
+yesBtn.addEventListener("click", ()=>{
+  // эффект
+  const r = yesBtn.getBoundingClientRect();
+  burstHearts(r.left + r.width/2, r.top + r.height/2);
+
+  // UI
+  card.classList.remove("pop");
+  void card.offsetWidth;
+  card.classList.add("pop");
+
+  result.style.display = "flex";
+  noBtn.style.opacity = "0.55";
+
+  // WhatsApp
+  const phone = "77053682256"; // <-- твой номер уже стоит
+  const message = "Ну ладно, я согласна)";
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+  setTimeout(()=> window.open(url, "_blank"), 650);
+});
+</script>
+</body>
+</html>
