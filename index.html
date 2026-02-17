@@ -177,11 +177,53 @@ button:active{ transform: scale(.98); }
   50%{ transform: scale(1.03); }
   100%{ transform: scale(1); }
 }
+/* ===== БЛОК ДЛЯ ТЕЛЕФОНА ===== */
+.mobileBlock{
+  position:fixed;
+  inset:0;
+  display:none;
+  place-items:center;
+  background: linear-gradient(135deg, #0b0b12, #1a1630);
+  color:#fff;
+  z-index:9999;
+  padding:24px;
+  text-align:center;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+
+.mobileBlock .box{
+  max-width:520px;
+  width:100%;
+  background:#ffffff10;
+  border:1px solid #ffffff25;
+  border-radius:18px;
+  padding:18px 16px;
+  backdrop-filter: blur(10px);
+}
+
+.mobileBlock .title{
+  font-size:22px;
+  font-weight:800;
+  margin:0 0 8px;
+}
+
+.mobileBlock .text{
+  margin:0;
+  opacity:.9;
+  line-height:1.5;
+}
+
 </style>
 </head>
 
 <body>
 <canvas id="fx"></canvas>
+  <div class="mobileBlock" id="mobileBlock">
+  <div class="box">
+    <p class="title">Упс! Нужно открыть это с ноутбука 💻</p>
+    <p class="text">На телефоне (вертикально/горизонтально) страница может отображаться неправильно.</p>
+  </div>
+</div>
 
 <div class="wrap">
   <div class="card" id="card">
@@ -217,6 +259,26 @@ button:active{ transform: scale(.98); }
 </div>
 
 <script>
+
+  /* ===== ОГРАНИЧЕНИЕ ДЛЯ ТЕЛЕФОНА (портрет и ландшафт) ===== */
+const mobileBlock = document.getElementById("mobileBlock");
+
+function isMobile(){
+  return window.matchMedia("(pointer: coarse)").matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+// если хочешь блокировать И портрет, И ландшафт на телефоне:
+function checkMobileBlock(){
+  if(isMobile()){
+    mobileBlock.style.display = "grid";
+  }else{
+    mobileBlock.style.display = "none";
+  }
+}
+
+window.addEventListener("load", checkMobileBlock);
+window.addEventListener("resize", checkMobileBlock);
+window.addEventListener("orientationchange", checkMobileBlock);
 /* ================== УБЕГАЮЩАЯ КНОПКА (плавно + работает на телефоне) ================== */
 const yesBtn = document.getElementById("yesBtn");
 const noBtn  = document.getElementById("noBtn");
